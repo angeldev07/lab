@@ -1,5 +1,6 @@
 package com.laboratorio.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,5 +30,6 @@ public class Query implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "problema_id")
+    @JsonIgnore
     private Problem problem;
 }
