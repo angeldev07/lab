@@ -38,7 +38,7 @@ public class Problem implements Serializable {
     @Column(name = "esquema")
     private String schema;
 
-    @OneToMany( mappedBy = "problem", fetch = FetchType.EAGER)
+    @OneToMany( mappedBy = "problem")
     private List<Query> queries;
 
 }
