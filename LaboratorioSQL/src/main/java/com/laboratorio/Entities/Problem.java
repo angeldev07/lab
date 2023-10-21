@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 
 @AllArgsConstructor
@@ -15,7 +17,7 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "problema")
-public class Problem {
+public class Problem implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,7 +38,7 @@ public class Problem {
     @Column(name = "esquema")
     private String schema;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "problem")
+    @OneToMany( mappedBy = "problem", fetch = FetchType.EAGER)
     private List<Query> queries;
 
 }
