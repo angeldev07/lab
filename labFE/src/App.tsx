@@ -20,11 +20,20 @@ interface ProblemDTO {
 
 const App = () => {
     const [problem, setProblem] = useState<ProblemDTO>()
+    const [value, setValue] = useState('SELECT * FROM courses')
+    const [result, setResult] = useState<any>()
 
     const getProblem = async (): Promise<ProblemDTO> => {
         const http = await fetch('http://localhost:8080/problem')
         return await http.json()
     }
+
+    const getResults = async () => {
+        const http = await  fetch(`http://localhost:8080/problem/execute?query=${value}`)
+        const res = await http.json()
+        setResult(res)
+    }
+
 
     useEffect(() => {
         const fetch = async () => {
@@ -32,6 +41,10 @@ const App = () => {
         }
         fetch()
     }, [])
+
+    useEffect(() => {
+        console.log(result)
+    }, [result]);
 
     return (
         <Split className='split'>
@@ -47,6 +60,8 @@ const App = () => {
                     <div>
                         <AceEditor
                             mode="mysql"
+                            value={value}
+                            onChange={ (value) => setValue(value)}
                             theme="monokai"
                             style={{width: '100%', height: '100%'}}
                             placeholder='Write your sql query here 👇'
@@ -60,16 +75,42 @@ const App = () => {
                             }}
                         />
                     </div>
-                    <div>
+                    <div style={{backgroundColor: "#272822", color: "#fff", padding: '0 1rem'}}>
                         <section style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px'}}>
                             <h2>Resultados</h2>
                             <div>
-                                <button> practicar</button>
+                                <button onClick={getResults}> practicar</button>
                                 <button> Enviar </button>
                             </div>
                         </section>
                         <section>
-                            <span>Ejecute pruebas para ver el resultado</span>
+                            {! result && <span>Ejecute pruebas para ver el resultado</span>}
+                            {result && (
+                                <table className="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            {
+                                               Object.keys(result[0]).map((column,i) => (
+                                                   <th key={i}>{column}</th>
+                                               ))
+                                            }
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {
+                                            result.map((res, i) => (
+                                                <tr key={i+1}>
+                                                    {
+                                                        Object.values(res).map(value => (
+                                                            <td>{value}</td>
+                                                        ))
+                                                    }
+                                                </tr>
+                                            ) )
+                                        }
+                                    </tbody>
+                                </table>
+                            )}
                         </section>
                     </div>
                 </Split>
