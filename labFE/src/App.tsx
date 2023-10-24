@@ -22,6 +22,7 @@ const App = () => {
     const [problem, setProblem] = useState<ProblemDTO>()
     const [value, setValue] = useState('SELECT * FROM courses')
     const [result, setResult] = useState<any>()
+    const [correct, setCorrect] = useState< >(false)
 
     const getProblem = async (): Promise<ProblemDTO> => {
         const http = await fetch('http://localhost:8080/problem')
@@ -29,9 +30,30 @@ const App = () => {
     }
 
     const getResults = async () => {
-        const http = await  fetch(`http://localhost:8080/problem/execute?query=${value}`)
+        const http = await  fetch(`http://localhost:8080/problem/execute?query=${value}&problemId=${problem?.queries[0].id}`)
         const res = await http.json()
         setResult(res)
+    }
+
+    const validateQuery = async () => {
+        if(! result) {
+            console.log('here?')
+            return
+        }
+        const http = await  fetch(`http://localhost:8080/problem/validate`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                results: [...result],
+                problemId: problem?.queries[0].id
+            })
+
+        })
+        const res = await http.json();
+        
+        setCorrect(res)
     }
 
 
@@ -80,11 +102,12 @@ const App = () => {
                             <h2>Resultados</h2>
                             <div>
                                 <button onClick={getResults}> practicar</button>
-                                <button> Enviar </button>
+                                <button onClick={validateQuery}> Enviar </button>
                             </div>
                         </section>
                         <section>
                             {! result && <span>Ejecute pruebas para ver el resultado</span>}
+                            {correct && <p>esta bien perro </p>}
                             {result && (
                                 <table className="table table-bordered table-striped">
                                     <thead>
@@ -102,7 +125,7 @@ const App = () => {
                                                 <tr key={i+1}>
                                                     {
                                                         Object.values(res).map(value => (
-                                                            <td>{value}</td>
+                                                            <td key={value}>{value}</td>
                                                         ))
                                                     }
                                                 </tr>
