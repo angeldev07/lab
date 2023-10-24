@@ -3,6 +3,7 @@ package com.laboratorio.controllers;
 import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.laboratorio.Entities.Problem;
 import com.laboratorio.Entities.Query;
+import com.laboratorio.http.request.ValidateQuery;
 import com.laboratorio.http.response.ProblemDTO;
 import com.laboratorio.repositories.ProblemRepository;
 import com.laboratorio.service.ProblemService;
@@ -20,7 +21,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/problem")
-@CrossOrigin(originPatterns = {"http://localhost:5173/"})
+@CrossOrigin("http://localhost:5173/")
 public class ProblemController {
 
     @Autowired
@@ -39,8 +40,13 @@ public class ProblemController {
     }
 
     @GetMapping("/execute")
-    public List<Map<String, Object>> executeQuery(@RequestParam String query ) throws SQLException {
-        return queryDbService.executeUserQuery(query);
+    public List<Map<String, Object>> executeQuery(@RequestParam String query, @RequestParam Integer problemId) throws SQLException {
+        return queryDbService.executeUserQuery(query, problemId);
+    }
+
+    @PostMapping("/validate")
+    public boolean validateQuery(@RequestBody ValidateQuery validateQuery){
+        return queryDbService.isCorrectAnswer(validateQuery.getResults(), validateQuery.getProblemId());
     }
 
 }

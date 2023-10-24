@@ -1,14 +1,15 @@
 package com.laboratorio.service;
 
+import com.laboratorio.Entities.Query;
 import com.laboratorio.repositories.QueryRepository;
 import com.laboratorio.service.interfaces.IQueryDbService;
 import com.laboratorio.service.jdbc.CustomJdbcTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -24,13 +25,46 @@ public class QueryDbService implements IQueryDbService {
 
 
     @Override
-    public List<Map<String, Object>> executeUserQuery(String userQuery) throws SQLException {
-        jdbc.connectToDataBase(queryRepository.findById(1).get().getProblem().getDbName());
-        return jdbc.queryForList(userQuery);
+    public List<Map<String, Object>> executeUserQuery(String userQuery, Integer problemId) throws SQLException {
+        Query query = queryRepository.findById(problemId).get();
+        jdbc.connectToDataBase(query.getProblem().getDbName());
+        return jdbc.queryForList(userQuery != null ? userQuery : query.getQuerySolution());
     }
 
     @Override
-    public boolean isCorrectAnswer(List<Map<String, Object>> userResult) {
-        return false;
+    public boolean isCorrectAnswer(List<Map<String, Object>> userResult, Integer problemId) {
+
+        try {
+            List<Map<String, Object>> results = executeUserQuery(null, problemId);
+
+            if(results.size() != userResult.size()) //las filas no coinciden
+                return  false;
+
+            if(results.get(0).keySet().size() != userResult.get(0).keySet().size()) // las columnas no coinciden
+                return false;
+
+
+            return isCorrectRows(userResult, results);
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private boolean isCorrectRows(List<Map<String, Object>> userResult, List<Map<String, Object>> problemResult){
+
+        byte index = 0;
+        for(Map<String, Object> rows: userResult){
+            var valuesUser = rows.keySet();
+            var valuesProblem = problemResult.get(index);
+
+            for(String value: valuesUser) {
+                if(! rows.get(value).toString().equalsIgnoreCase( valuesProblem.get(value).toString()  ))
+                    return false;
+            }
+            index++;
+        }
+
+        return true;
     }
 }

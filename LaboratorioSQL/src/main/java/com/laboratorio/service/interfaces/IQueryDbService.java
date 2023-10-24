@@ -6,8 +6,8 @@ import java.util.Map;
 
 public interface IQueryDbService {
 
-    List<Map<String, Object>> executeUserQuery(String userQuery) throws SQLException;
+    List<Map<String, Object>> executeUserQuery(String userQuery, Integer problemId) throws SQLException;
 
-    boolean isCorrectAnswer(List<Map<String, Object>> userResult);
+    boolean isCorrectAnswer(List<Map<String, Object>> userResult, Integer problemId);
 
 }
