@@ -1,18 +1,11 @@
 package com.laboratorio.controllers;
 
-import com.fasterxml.jackson.databind.util.BeanUtil;
-import com.laboratorio.Entities.Problem;
-import com.laboratorio.Entities.Query;
 import com.laboratorio.http.request.ValidateQuery;
 import com.laboratorio.http.response.ProblemDTO;
-import com.laboratorio.repositories.ProblemRepository;
 import com.laboratorio.service.ProblemService;
 import com.laboratorio.service.QueryDbService;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
@@ -41,7 +34,7 @@ public class ProblemController {
 
     @GetMapping("/execute")
     public List<Map<String, Object>> executeQuery(@RequestParam String query, @RequestParam Integer problemId) throws SQLException {
-        return queryDbService.executeUserQuery(query, problemId);
+        return queryDbService.execute(query, problemId);
     }
 
     @PostMapping("/validate")
